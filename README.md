@@ -2,7 +2,8 @@
 
 An interactive, visual progress tracker for all **25 Codedex courses**, organized into 4 learning tracks. Built as a single self-contained HTML file — no install, no backend, just open and go.
 
-🔗 **Live demo:** _(add your GitHub Pages link here after deploying)_
+
+
 
 ---
 
