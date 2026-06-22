@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>codedex // tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#13111C;
+    --panel:#1B1827;
+    --panel-hover:#221E33;
+    --line:#2D2840;
+    --text:#EFEDF7;
+    --text-dim:#9892AD;
+
+    --c1:#8B7CF6;   /* violet — python/data */
+    --c1-bg:#211C38;
+    --c2:#4FD1C5;   /* teal — web dev */
+    --c2-bg:#16282A;
+    --c3:#F472B6;   /* pink — tools */
+    --c3-bg:#2B1A28;
+    --c4:#FBBF24;   /* gold — other languages */
+    --c4-bg:#2B2419;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    padding:64px 48px 120px;
+  }
+  .wrap{max-width:1680px;margin:0 auto;}
+
+  .header{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:32px;
+    margin-bottom:56px;
+  }
+  .title{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:56px;
+    font-weight:700;
+  }
+  .subtitle{
+    color:var(--text-dim);
+    font-size:20px;
+    margin-top:10px;
+  }
+
+  .overall{
+    display:flex;
+    align-items:center;
+    gap:32px;
+  }
+  .ring-wrap{position:relative;width:140px;height:140px;flex-shrink:0;}
+  .ring-wrap svg{transform:rotate(-90deg);}
+  .ring-bg{fill:none;stroke:var(--line);stroke-width:12;}
+  .ring-fill{fill:none;stroke:url(#gradStroke);stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset .4s ease;}
+  .ring-label{
+    position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:30px;font-weight:600;
+  }
+  .overall-stats .big{font-family:'Space Grotesk',sans-serif;font-size:38px;font-weight:600;}
+  .overall-stats .small{font-size:18px;color:var(--text-dim);margin-top:4px;}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:28px;
+  }
+  @media (max-width:1300px){
+    .grid{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:760px){
+    .grid{grid-template-columns:1fr;}
+  }
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:24px;
+    padding:32px 28px;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .panel-head{margin-bottom:24px;}
+  .panel-head .cat-name{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:26px;
+    font-weight:600;
+    line-height:1.2;
+  }
+  .panel-head .cat-frac{
+    font-size:17px;
+    color:var(--text-dim);
+    margin-top:8px;
+  }
+  .panel-bar-track{
+    height:9px;
+    background:var(--line);
+    border-radius:99px;
+    overflow:hidden;
+    margin-top:16px;
+  }
+  .panel-bar-fill{
+    height:100%;
+    border-radius:99px;
+    transition:width .3s ease;
+  }
+
+  .course-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-top:20px;
+  }
+  .course-row{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:16px 16px;
+    border-radius:14px;
+    cursor:pointer;
+    transition:background .15s;
+  }
+  .course-row:hover{background:var(--panel-hover);}
+
+  .checkmark{
+    width:30px;height:30px;
+    border-radius:9px;
+    border:2px solid var(--line);
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:all .15s;
+  }
+  .checkmark svg{
+    width:18px;height:18px;
+    opacity:0;
+    transform:scale(0.5);
+    transition:all .15s;
+  }
+  .course-row.done .checkmark svg{opacity:1;transform:scale(1);}
+
+  .course-name{
+    font-size:20px;
+    transition:color .15s;
+  }
+  .course-row.done .course-name{
+    color:var(--text-dim);
+    text-decoration:line-through;
+  }
+
+  .footer-bar{
+    margin-top:56px;
+    display:flex;
+    justify-content:center;
+  }
+  .reset-btn{
+    background:none;
+    border:2px solid var(--line);
+    color:var(--text-dim);
+    font-family:'Inter';
+    font-size:17px;
+    padding:14px 28px;
+    border-radius:99px;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .reset-btn:hover{
+    border-color:#8B7CF6;
+    color:var(--text);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div>
+      <div class="title">Codedex tracker</div>
+      <div class="subtitle">25 courses · 4 tracks</div>
+    </div>
+
+    <div class="overall">
+      <div class="ring-wrap">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+          <defs>
+            <linearGradient id="gradStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#8B7CF6"/>
+              <stop offset="100%" stop-color="#4FD1C5"/>
+            </linearGradient>
+          </defs>
+          <circle class="ring-bg" cx="70" cy="70" r="60"></circle>
+          <circle class="ring-fill" id="ringFill" cx="70" cy="70" r="60" stroke-dasharray="376.8" stroke-dashoffset="376.8"></circle>
+        </svg>
+        <div class="ring-label" id="ringLabel">0%</div>
+      </div>
+      <div class="overall-stats">
+        <div class="big" id="doneTotal">0 / 25</div>
+        <div class="small">courses complete</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="footer-bar">
+    <button class="reset-btn" id="resetBtn">Reset all progress</button>
+  </div>
+
+</div>
+
+<script>
+const DATA = [
+  { key:"c1", name: "Python & data", courses: ["Python (Beginner)", "Intermediate Python", "Pandas", "NumPy", "Matplotlib", "Machine Learning", "GenAI", "SQL"] },
+  { key:"c2", name: "Web development", courses: ["HTML", "CSS", "JavaScript", "Intermediate JavaScript", "React", "Node.js", "p5.js"] },
+  { key:"c3", name: "Tools & fundamentals", courses: ["Command Line", "Git & GitHub", "GitHub Copilot", "Data Structures & Algorithms", "UI/UX Design"] },
+  { key:"c4", name: "Other languages & game dev", courses: ["C#", "C++", "Java", "Lua", "Phaser"] }
+];
+
+const COLORS = {
+  c1: { fg:"#8B7CF6", bg:"#211C38" },
+  c2: { fg:"#4FD1C5", bg:"#16282A" },
+  c3: { fg:"#F472B6", bg:"#2B1A28" },
+  c4: { fg:"#FBBF24", bg:"#2B2419" }
+};
+
+const STORAGE_KEY = "codedex-tracker-progress-v2";
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  }catch(e){ return {}; }
+}
+function saveState(state){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+}
+
+let state = loadState();
+const grid = document.getElementById('grid');
+let totalCourses = 0;
+
+DATA.forEach((group) => {
+  totalCourses += group.courses.length;
+  const c = COLORS[group.key];
+
+  const panel = document.createElement('div');
+  panel.className = 'panel';
+  panel.style.background = c.bg;
+  panel.style.borderColor = c.fg + '33';
+
+  const head = document.createElement('div');
+  head.className = 'panel-head';
+  head.innerHTML = `
+    <div class="cat-name" style="color:${c.fg}">${group.name}</div>
+    <div class="cat-frac" id="frac-${group.key}">0/${group.courses.length}</div>
+    <div class="panel-bar-track"><div class="panel-bar-fill" id="bar-${group.key}" style="width:0%;background:${c.fg};"></div></div>
+  `;
+  panel.appendChild(head);
+
+  const list = document.createElement('div');
+  list.className = 'course-list';
+
+  group.courses.forEach((course, ci) => {
+    const id = group.key + '-' + ci;
+    const row = document.createElement('div');
+    row.className = 'course-row';
+    row.id = 'row-' + id;
+
+    row.innerHTML = `
+      <span class="checkmark" id="check-${id}" style="border-color:${c.fg}55;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="${c.fg}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </span>
+      <span class="course-name">${course}</span>
+    `;
+    row.addEventListener('click', () => toggle(id, group.key, c.fg));
+    list.appendChild(row);
+  });
+
+  panel.appendChild(list);
+  grid.appendChild(panel);
+});
+
+function toggle(id, key, color){
+  state[id] = !state[id];
+  saveState(state);
+  renderAll();
+}
+
+function renderAll(){
+  let totalDone = 0;
+
+  DATA.forEach((group) => {
+    let groupDone = 0;
+    const c = COLORS[group.key];
+    group.courses.forEach((course, ci) => {
+      const id = group.key + '-' + ci;
+      const isDone = !!state[id];
+      if(isDone) groupDone++;
+      const row = document.getElementById('row-' + id);
+      const check = document.getElementById('check-' + id);
+      row.classList.toggle('done', isDone);
+      check.style.background = isDone ? c.fg : 'transparent';
+      check.style.borderColor = isDone ? c.fg : c.fg + '55';
+    });
+    const groupPct = Math.round((groupDone / group.courses.length) * 100);
+    document.getElementById('frac-' + group.key).textContent = groupDone + '/' + group.courses.length;
+    document.getElementById('bar-' + group.key).style.width = groupPct + '%';
+    totalDone += groupDone;
+  });
+
+  const pct = Math.round((totalDone / totalCourses) * 100);
+  document.getElementById('doneTotal').textContent = totalDone + ' / ' + totalCourses;
+  document.getElementById('ringLabel').textContent = pct + '%';
+
+  const circumference = 376.8;
+  const offset = circumference - (pct / 100) * circumference;
+  document.getElementById('ringFill').style.strokeDashoffset = offset;
+}
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if(confirm('Reset all progress?')){
+    state = {};
+    saveState(state);
+    renderAll();
+  }
+});
+
+renderAll();
+</script>
+</body>
+</html>
